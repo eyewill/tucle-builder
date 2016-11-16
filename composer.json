@@ -1,0 +1,8 @@
+{
+    "name": "eyewill/tucle-builder",
+    "description": "Tucle Builder",
+    "author": "Hiroshi Kawai <kawai@primalbase.jp>",
+    "require": {
+        "gossi/php-code-generator": "^0.3.2"
+    }
+}

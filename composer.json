@@ -3,6 +3,12 @@
     "description": "Tucle Builder",
     "author": "Hiroshi Kawai <kawai@primalbase.jp>",
     "require": {
+        "nikic/php-parser": "~1",
         "gossi/php-code-generator": "^0.3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Eyewill\\TucleBuilder\\": "src/"
+        }
     }
 }

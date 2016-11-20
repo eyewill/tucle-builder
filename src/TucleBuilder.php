@@ -3,7 +3,6 @@
 use Exception;
 use Generator;
 use Schema;
-use View;
 
 class TucleBuilder
 {

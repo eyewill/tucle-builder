@@ -48,6 +48,7 @@ class RequestsFactory
   protected function make($request)
   {
     $class = new PhpClass();
+    $class->addUseStatement('Eyewill\\TucleCore\\Http\\Requests\\Request');
     $class->setQualifiedName('App\\Http\\Requests\\'.studly_case($request).$this->module->studly('Request').' extends Request');
     $class->setMethod(PhpMethod::create('rules')
       ->setBody($this->rules()));

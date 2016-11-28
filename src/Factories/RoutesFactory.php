@@ -18,7 +18,8 @@ class RoutesFactory
     'edit',
     'update',
     'show',
-//    'destroy',
+    'delete',
+    'delete_file',
   ];
 
   public function __construct($module, $path, $force)
@@ -39,6 +40,8 @@ class RoutesFactory
     $this->uses[] = 'App\\Http\\Presenters\\'.$this->module->studly('Presenter');
     $this->uses[] = 'App\\Http\\Requests\\Store'.$this->module->studly('Request');
     $this->uses[] = 'App\\Http\\Requests\\Update'.$this->module->studly('Request');
+    $this->uses[] = 'App\\Http\\Requests\\Delete'.$this->module->studly('Request');
+    $this->uses[] = 'App\\Http\\Requests\\DeleteFile'.$this->module->studly('Request');
     $routes = [];
     foreach ($this->routes as $route)
     {
@@ -172,4 +175,41 @@ Route::get('$module/{{$module}}', function ($presenter \$presenter, $model \$mod
 __CODE__;
   }
 
+  protected function delete()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    $request = 'Delete'.$this->module->studly('Request');
+    return <<< __CODE__
+/**
+ * Delete
+ * route DELETE $module/{{$module}}
+*/
+Route::delete('$module/{{$module}}', function ($request \$request, $model \$model) {  
+  \$model->delete();
+  return redirect()->back()
+    ->with('success', '削除しました');
+});
+__CODE__;
+  }
+
+  protected function delete_file()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    $request = 'DeleteFile'.$this->module->studly('Request');
+    return <<< __CODE__
+/**
+ * Delete within file
+ * route DELETE $module/{{$module}}/{file}
+*/
+Route::delete('$module/{{$module}}/{file}', function ($request \$request, $model \$model, \$file) {  
+  
+  \$model->{\$file} = STAPLER_NULL;
+  \$model->save(); 
+  return redirect()->back()
+    ->with('success', '削除しました');
+});
+__CODE__;
+  }
 }

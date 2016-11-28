@@ -56,6 +56,53 @@ class Module
     return $this->name;
   }
 
+  public function getFiles()
+  {
+    $columns = Schema::getColumnListing($this->tableize());
+
+    $files = [];
+    foreach ($columns as $column)
+    {
+      if (preg_match('/^(.+)_file_name$/', $column, $m))
+      {
+        $files[] = $m[1];
+      }
+    }
+
+    return $files;
+  }
+
+  public function getFillable($except = [])
+  {
+    $columns = array_diff(Schema::getColumnListing($this->tableize()), $except);
+
+    $files = $this->getFiles();
+
+    $fillable = [];
+    foreach ($columns as $column)
+    {
+      if (in_array($column, ['id', 'created_at', 'updated_at', 'deleted_at']))
+      {
+        continue;
+      }
+      foreach ($files as $file)
+      {
+        if ($column == $file.'_file_name')
+        {
+          $fillable[] = $file;
+          continue 2;
+        }
+        elseif (in_array($column, [$file.'_file_size', $file.'_content_type', $file.'_updated_at']))
+        {
+          continue 2;
+        }
+      }
+      $fillable[] = $column;
+    }
+
+    return $fillable;
+  }
+
   public function getTableColumns($except = [])
   {
     return array_diff(Schema::getColumnListing($this->tableize()), $except);

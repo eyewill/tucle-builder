@@ -11,7 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 class <?php echo $module->studly() ?> extends Model
 {
   protected $fillable = [
-<?php foreach ($module->getTableColumns(['id', 'created_at', 'updated_at']) as $column) : ?>
+<?php foreach ($module->getFillable() as $column) : ?>
+    '<?php echo $column ?>',
+<?php endforeach; ?>
+  ];
+
+  protected $files = [
+<?php foreach ($module->getFiles() as $column) : ?>
     '<?php echo $column ?>',
 <?php endforeach; ?>
   ];

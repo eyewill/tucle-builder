@@ -16,6 +16,8 @@ class RequestsFactory
   protected $requests = [
     'store',
     'update',
+    'delete',
+    'delete_file',
   ];
 
   public function __construct($module, $path, $force)

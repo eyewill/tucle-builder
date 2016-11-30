@@ -1,7 +1,7 @@
 ## インストール <small>(install)</small>
 
 <pre>
-$ composer require eyewill/tucle-builder 0.0.*
+$ composer require eyewill/tucle-builder:dev-master
 </pre>
 
 ... and append to config/app.php

@@ -207,6 +207,13 @@ Route::delete('$module/{{$module}}/{file}', function ($request \$request, $model
   
   \$model->{\$file} = STAPLER_NULL;
   \$model->save(); 
+  if (\$request->ajax())
+  {
+    return response()->json([
+      'status' => 'ok',
+      'message' => '削除しました',
+    ]);
+  }
   return redirect()->back()
     ->with('success', '削除しました');
 });

@@ -3,8 +3,7 @@
     "description": "Tucle Builder",
     "author": "Hiroshi Kawai <kawai@primalbase.jp>",
     "require": {
-        "nikic/php-parser": "~1",
-        "gossi/php-code-generator": "^0.3.2"
+        "gossi/php-code-generator": "0.4.*"
     },
     "autoload": {
         "psr-4": {

@@ -6,6 +6,7 @@ use File;
 use gossi\codegen\generator\CodeGenerator;
 use gossi\codegen\model\PhpClass;
 use gossi\codegen\model\PhpMethod;
+use gossi\codegen\model\PhpProperty;
 
 class RequestsFactory
 {
@@ -29,13 +30,14 @@ class RequestsFactory
 
   public function generator()
   {
-    File::makeDirectory(dirname($this->path), 02775, true, true);
+    $dir = $this->path.'/'.$this->module->studly();
+    File::makeDirectory($dir, 02775, true, true);
 
     foreach ($this->requests as $request)
     {
       $path = sprintf('%s/%s.php',
-        $this->path,
-        studly_case($request).$this->module->studly('Request'));
+        $dir,
+        studly_case($request).'Request');
 
       if (!$this->force && File::exists($path))
       {
@@ -51,7 +53,14 @@ class RequestsFactory
   {
     $class = new PhpClass();
     $class->addUseStatement('Eyewill\\TucleCore\\Http\\Requests\\Request');
-    $class->setQualifiedName('App\\Http\\Requests\\'.studly_case($request).$this->module->studly('Request').' extends Request');
+    $class->addUseStatement('App\\Http\\Presenters\\'.$this->module->studly('Presenter'));
+    $class->setQualifiedName('App\\Http\\Requests\\'.$this->module->studly().'\\'.studly_case($request).'Request extends Request');
+
+    $class->setProperty(
+      PhpProperty::create('presenter')
+        ->setVisibility('protected')
+        ->setExpression($this->module->studly('Presenter').'::class')
+    );
     if (in_array($request, ['store', 'update']))
     {
       $class->setMethod(PhpMethod::create('rules')

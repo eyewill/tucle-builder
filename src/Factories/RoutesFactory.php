@@ -38,10 +38,10 @@ class RoutesFactory
 
     $this->uses[] = 'App\\'.$this->module->studly();
     $this->uses[] = 'App\\Http\\Presenters\\'.$this->module->studly('Presenter');
-    $this->uses[] = 'App\\Http\\Requests\\Store'.$this->module->studly('Request');
-    $this->uses[] = 'App\\Http\\Requests\\Update'.$this->module->studly('Request');
-    $this->uses[] = 'App\\Http\\Requests\\Delete'.$this->module->studly('Request');
-    $this->uses[] = 'App\\Http\\Requests\\DeleteFile'.$this->module->studly('Request');
+    $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\StoreRequest';
+    $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\UpdateRequest';
+    $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\DeleteRequest';
+    $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\DeleteFileRequest';
     $routes = [];
     foreach ($this->routes as $route)
     {
@@ -100,13 +100,12 @@ __CODE__;
   {
     $module = $this->module;
     $model = $this->module->studly();
-    $request = 'Store'.$this->module->studly('Request');
     return <<< __CODE__
 /**
  * Store
  * route POST $module
 */
-Route::post('$module', function ($request \$request) {  
+Route::post('$module', function (StoreRequest \$request) {  
   \$model = $model::create(\$request->all());
   return redirect()
     ->route('$module.show', \$model)
@@ -139,13 +138,12 @@ __CODE__;
   {
     $module = $this->module;
     $model = $this->module->studly();
-    $request = 'Update'.$this->module->studly('Request');
     return <<< __CODE__
 /**
  * Update
  * route PUT $module/{{$module}}
 */
-Route::put('$module/{{$module}}', function ($request \$request, $model \$model) {  
+Route::put('$module/{{$module}}', function (UpdateRequest \$request, $model \$model) {  
   \$model->fill(\$request->all());
   \$model->save();
   return redirect()
@@ -179,13 +177,12 @@ __CODE__;
   {
     $module = $this->module;
     $model = $this->module->studly();
-    $request = 'Delete'.$this->module->studly('Request');
     return <<< __CODE__
 /**
  * Delete
  * route DELETE $module/{{$module}}
 */
-Route::delete('$module/{{$module}}', function ($request \$request, $model \$model) {  
+Route::delete('$module/{{$module}}', function (DeleteRequest \$request, $model \$model) {  
   \$model->delete();
   return redirect()->back()
     ->with('success', '削除しました');
@@ -197,13 +194,12 @@ __CODE__;
   {
     $module = $this->module;
     $model = $this->module->studly();
-    $request = 'DeleteFile'.$this->module->studly('Request');
     return <<< __CODE__
 /**
  * Delete within file
  * route DELETE $module/{{$module}}/{file}
 */
-Route::delete('$module/{{$module}}/{file}', function ($request \$request, $model \$model, \$file) {  
+Route::delete('$module/{{$module}}/{file}', function (DeleteFileRequest \$request, $model \$model, \$file) {  
   
   \$model->{\$file} = STAPLER_NULL;
   \$model->save(); 

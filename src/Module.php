@@ -113,7 +113,8 @@ class Module
         $except[] = $file.$suffix;
       }
     }
-    $columns = array_diff(Schema::getColumnListing($this->tableize()), $except);
+
+    $columns = $this->getFillable($except);
 
     $nullable = [];
     foreach ($columns as $column)

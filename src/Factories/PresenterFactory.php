@@ -77,17 +77,34 @@ class PresenterFactory
 
   public function showColumns()
   {
-    $columns = [];
-    foreach ($this->module->getTableColumns() as $column)
+    $columns = $this->module->getTableColumns();
+
+    $entries = [];
+    foreach ($columns as $column)
     {
-      $columns[] = "\t[\n".
-        sprintf("\t\t'name' => '%s',\n", $column).
-        sprintf("\t\t'label' => '%s',\n", $this->module->getColumnLabel($column)).
-        "\t],\n";
+      if (preg_match('/^(.+)_file_name$/', $column, $m))
+      {
+        $entries[] = $this->makeParamsString([
+          'type' => 'image',
+          'name' => $m[1],
+          'label' => $m[1],
+        ]);
+      }
+      elseif (preg_match('/^.+_(file_size|content_type|updated_at)$/', $column))
+      {
+        continue;
+      }
+      else
+      {
+        $entries[] = $this->makeParamsString([
+          'name' => $column,
+          'label' => $this->module->getColumnLabel($column),
+        ]);
+      }
     }
 
     return PhpProperty::create('showColumns')
-      ->setExpression("[\n".implode('', $columns)."]");
+      ->setExpression("[\n".implode('', $entries)."]");
   }
 
   protected function forms()
@@ -95,40 +112,58 @@ class PresenterFactory
     $columns = $this->module->getTableColumns();
     $columns = array_diff($columns, ['id', 'created_at', 'updated_at']);
     $forms = [];
-    if (in_array('published_at', $columns) && in_array('terminated_at', $columns))
-    {
-      $columns = array_diff($columns, ['published_at', 'terminated_at']);
-      $forms[] = $this->makeFormSpec([
-        'type' => 'published',
-      ]);
-    }
 
     foreach ($columns as $column)
     {
-      $forms[] = $this->makeFormSpec([
-        'type' => $this->module->getFormType($column),
-        'name' => $column,
-        'label' => $this->module->getColumnLabel($column),
-      ]);
+      if ('published_at' == $column)
+      {
+        $forms[] = $this->makeParamsString([
+          'type' => 'published',
+        ]);
+      }
+      elseif ('terminated_at' == $column)
+      {
+        continue;
+      }
+      elseif (preg_match('/^(.+)_file_name$/', $column, $m))
+      {
+        $forms[] = $this->makeParamsString([
+          'type' => 'image',
+          'name' => $m[1],
+          'label' => $m[1],
+        ]);
+      }
+      elseif (preg_match('/^.+_(file_size|content_type|updated_at)$/', $column))
+      {
+        continue;
+      }
+      else
+      {
+        $forms[] = $this->makeParamsString([
+          'type' => $this->module->getFormType($column),
+          'name' => $column,
+          'label' => $this->module->getColumnLabel($column),
+        ]);
+      }
     }
 
     return PhpProperty::create('forms')
       ->setExpression("[\n".implode('', $forms)."]");
   }
 
-  protected function makeFormSpec(array $attributes = [])
+  protected function makeParamsString(array $params = [])
   {
-    $formSpec = "\t[\n";
-    foreach ($attributes as $name => $value)
+    $code = "\t[\n";
+    foreach ($params as $name => $value)
     {
-      $formSpec.= sprintf("\t\t'%s' => '%s',\n",
+      $code.= sprintf("\t\t'%s' => '%s',\n",
         $name,
         $value
       );
     }
-    $formSpec.= "\t],\n";
+    $code.= "\t],\n";
 
-    return $formSpec;
+    return $code;
   }
 
   protected function entryTableColumns($limit = 5)

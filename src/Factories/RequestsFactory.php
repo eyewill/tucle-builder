@@ -61,17 +61,19 @@ class RequestsFactory
         ->setVisibility('protected')
         ->setExpression($this->module->studly('Presenter').'::class')
     );
-    if (in_array($request, ['store', 'update']))
-    {
       $class->setMethod(PhpMethod::create('rules')
-        ->setBody($this->rules()));
-    }
+        ->setBody($this->rules($request)));
     $generator = new CodeGenerator();
     return '<?php '.$generator->generate($class);
   }
 
-  protected function rules()
+  protected function rules($request)
   {
+    if (in_array($request, ['store', 'update']))
+    {
+      return 'return [];'.PHP_EOL;
+    }
+
     $php = '';
     $php.= 'return ['.PHP_EOL;
     foreach ($this->module->getTableColumns() as $column)

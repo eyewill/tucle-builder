@@ -103,6 +103,30 @@ class Module
     return $fillable;
   }
 
+  public function getNullable($except = [])
+  {
+    $files = $this->getFiles();
+    foreach ($files as $file)
+    {
+      foreach (['_file_name', '_file_size', '_content_type', '_updated_at'] as $suffix)
+      {
+        $except[] = $file.$suffix;
+      }
+    }
+    $columns = array_diff(Schema::getColumnListing($this->tableize()), $except);
+
+    $nullable = [];
+    foreach ($columns as $column)
+    {
+      if (!Schema::getConnection()->getDoctrineColumn($this->tableize(), $column)->getNotnull())
+      {
+        $nullable[] = $column;
+      }
+    }
+
+    return $nullable;
+  }
+
   public function getTableColumns($except = [])
   {
     return array_diff(Schema::getColumnListing($this->tableize()), $except);

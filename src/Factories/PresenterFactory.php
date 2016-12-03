@@ -4,7 +4,6 @@ use Exception;
 use Eyewill\TucleBuilder\Module;
 use File;
 use gossi\codegen\generator\CodeGenerator;
-use gossi\codegen\generator\GeneratorStrategy;
 use gossi\codegen\model\PhpClass;
 use gossi\codegen\model\PhpProperty;
 
@@ -52,11 +51,6 @@ class PresenterFactory
     $class->setProperties(array_reverse($properties));
 
     $generator = new CodeGenerator();
-    /** @var GeneratorStrategy $strategy */
-//    $strategy = $generator->getGeneratorStrategy();
-//    $strategy->setPropertySortFunc(function ($a, $b) { // 定義順
-//      return 0;
-//    });
 
     return '<?php '.$generator->generate($class);
   }
@@ -98,28 +92,52 @@ class PresenterFactory
 
   protected function forms()
   {
+    $columns = $this->module->getTableColumns();
+    $columns = array_diff($columns, ['id', 'created_at', 'updated_at']);
     $forms = [];
-    foreach ($this->module->getTableColumns() as $column)
+    if (in_array('published_at', $columns) && in_array('terminated_at', $columns))
     {
-      if (!in_array($column, ['id', 'created_at', 'updated_at']))
-      {
-        $forms[] = "\t[\n".
-          sprintf("\t\t'type' => '%s',\n", $this->module->getFormType($column)).
-          sprintf("\t\t'name' => '%s',\n", $column).
-          sprintf("\t\t'label' => '%s',\n", $this->module->getColumnLabel($column)).
-          "\t],\n";
-      }
+      $columns = array_diff($columns, ['published_at', 'terminated_at']);
+      $forms[] = $this->makeFormSpec([
+        'type' => 'published',
+      ]);
+    }
+
+    foreach ($columns as $column)
+    {
+      $forms[] = $this->makeFormSpec([
+        'type' => $this->module->getFormType($column),
+        'name' => $column,
+        'label' => $this->module->getColumnLabel($column),
+      ]);
     }
 
     return PhpProperty::create('forms')
       ->setExpression("[\n".implode('', $forms)."]");
   }
 
-  protected function entryTableColumns()
+  protected function makeFormSpec(array $attributes = [])
+  {
+    $formSpec = "\t[\n";
+    foreach ($attributes as $name => $value)
+    {
+      $formSpec.= sprintf("\t\t'%s' => '%s',\n",
+        $name,
+        $value
+      );
+    }
+    $formSpec.= "\t],\n";
+
+    return $formSpec;
+  }
+
+  protected function entryTableColumns($limit = 5)
   {
     $columns = [];
-    foreach ($this->module->getTableColumns() as $column)
+    foreach ($this->module->getTableColumns() as $i => $column)
     {
+      if ($i >= $limit)
+        break;
       $columns[] = "\t[\n".
         sprintf("\t\t'name' => '%s',\n", $column).
         sprintf("\t\t'label' => '%s',\n", $this->module->getColumnLabel($column)).

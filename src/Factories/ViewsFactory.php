@@ -40,7 +40,7 @@ class ViewsFactory
         throw new Exception($path.' already exists.');
       }
 
-      File::put($path, sprintf("@extends('tucle::%s')", $view));
+      File::put($path, sprintf("@extends('tucle::base.%s')", $view));
       yield $path;
     }
   }

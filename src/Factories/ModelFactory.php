@@ -50,6 +50,7 @@ class ModelFactory
     $class->setTraits([
       PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
       PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
+      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable'),
     ]);
 
     $class->setProperties([

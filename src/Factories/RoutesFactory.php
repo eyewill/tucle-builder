@@ -228,7 +228,7 @@ __CODE__;
 */
 Route::get('$module/{{$module}}/preview', function ($model \$model) {  
   return response()->make('preview...');
-});
+})->name('$module.preview');
 __CODE__;
   }
 

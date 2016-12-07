@@ -9,7 +9,6 @@ use gossi\codegen\model\PhpMethod;
 use gossi\codegen\model\PhpParameter;
 use gossi\codegen\model\PhpProperty;
 use gossi\codegen\model\PhpTrait;
-use gossi\docblock\Docblock;
 
 class ModelFactory
 {
@@ -128,10 +127,17 @@ __PHP__
 
   protected function url()
   {
+    $name = $this->module;
     return PhpMethod::create('url')
       ->setVisibility('public')
+      ->setParameters([PhpParameter::create('preview')->setValue(false)])
       ->setBody(<<<__PHP__
-return '#';
+if (\$preview)
+{
+  return route('$name.preview', [\$this]);
+}
+
+return config('tucle.front_url').'/$name/'.\$this->id;
 __PHP__
       );
   }

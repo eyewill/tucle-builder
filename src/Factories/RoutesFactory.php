@@ -18,6 +18,7 @@ class RoutesFactory
     'edit',
     'update',
     'show',
+    'preview',
     'delete',
     'delete_file',
   ];
@@ -215,4 +216,21 @@ Route::delete('$module/{{$module}}/{file}', function (DeleteFileRequest \$reques
 });
 __CODE__;
   }
+
+  protected function preview()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    return <<< __CODE__
+/**
+ * Preview
+ * route Get $module/{{$module}}/preview
+*/
+Route::get('$module/{{$module}}/preview', function ($model \$model) {  
+  return response()->make('preview...');
+});
+__CODE__;
+  }
+
+
 }

@@ -187,7 +187,7 @@ class PresenterFactory
   protected function routes()
   {
     $routes = [];
-    foreach (['index', 'create', 'edit', 'show'] as $route)
+    foreach (['index', 'create', 'store', 'edit', 'update', 'show'] as $route)
     {
       $routes[] = sprintf("\t'%s' => '%s.%s',\n", $route, $this->module, $route);
     }

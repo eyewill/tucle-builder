@@ -110,7 +110,7 @@ Route::post('$module', function (StoreRequest \$request) {
   return redirect()
     ->route('$module.show', \$model)
     ->with('success', '作成しました');
-});
+})->name('$module.store');
 __CODE__;
   }
 
@@ -149,7 +149,7 @@ Route::put('$module/{{$module}}', function (UpdateRequest \$request, $model \$mo
   return redirect()
     ->route('$module.show', \$model)
     ->with('success', '更新しました');
-});
+})->name('$module.update');
 __CODE__;
   }
 

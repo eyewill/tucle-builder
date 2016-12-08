@@ -50,6 +50,7 @@ class ModelFactory
       PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
       PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
       PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable'),
+      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
     ]);
 
     $class->setProperties([
@@ -130,13 +131,7 @@ __PHP__
     $name = $this->module;
     return PhpMethod::create('url')
       ->setVisibility('public')
-      ->setParameters([PhpParameter::create('preview')->setValue(false)])
       ->setBody(<<<__PHP__
-if (\$preview)
-{
-  return route('$name.preview', [\$this]);
-}
-
 return config('tucle.front_url').'/$name/'.\$this->id;
 __PHP__
       );

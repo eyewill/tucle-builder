@@ -19,6 +19,7 @@ class RequestsFactory
     'update',
     'delete',
     'delete_file',
+    'batch',
   ];
 
   public function __construct($module, $path, $force)
@@ -69,7 +70,7 @@ class RequestsFactory
 
   protected function rules($request)
   {
-    if (in_array($request, ['store', 'update']))
+    if (!in_array($request, ['store', 'update']))
     {
       return 'return [];'.PHP_EOL;
     }

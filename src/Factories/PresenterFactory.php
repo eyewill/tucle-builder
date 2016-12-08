@@ -11,10 +11,18 @@ class PresenterFactory
 {
   /** @var  Module */
   protected $module;
-
   protected $path;
-
   protected $force;
+  protected $routes = [
+    'index',
+    'create',
+    'store',
+    'edit',
+    'update',
+    'show',
+    'preview',
+    'batch',
+  ];
 
   public function __construct($module, $path, $force)
   {
@@ -187,7 +195,7 @@ class PresenterFactory
   protected function routes()
   {
     $routes = [];
-    foreach (['index', 'create', 'store', 'edit', 'update', 'show', 'preview'] as $route)
+    foreach ($this->routes as $route)
     {
       $routes[] = sprintf("\t'%s' => '%s.%s',\n", $route, $this->module, $route);
     }

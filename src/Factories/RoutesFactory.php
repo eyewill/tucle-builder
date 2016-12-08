@@ -21,6 +21,7 @@ class RoutesFactory
     'preview',
     'delete',
     'delete_file',
+    'batch',
   ];
 
   public function __construct($module, $path, $force)
@@ -43,6 +44,7 @@ class RoutesFactory
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\UpdateRequest';
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\DeleteRequest';
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\DeleteFileRequest';
+    $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\BatchRequest';
     $routes = [];
     foreach ($this->routes as $route)
     {
@@ -232,5 +234,27 @@ Route::get('$module/{{$module}}/preview', function ($model \$model) {
 __CODE__;
   }
 
+
+  protected function batch()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    return <<< __CODE__
+/**
+ * Batch request
+ * route POST $module/batch
+*/
+Route::post('$module/batch', function (BatchRequest \$request) {  
+  
+  $model::batch(\$request->json());
+
+  return response()->json([
+    'status' => 'ok',
+    'message' => '一括処理は正常に完了しました',
+  ]);
+
+})->middleware('json')->name('$module.batch');
+__CODE__;
+  }
 
 }

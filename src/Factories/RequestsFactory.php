@@ -53,9 +53,16 @@ class RequestsFactory
   protected function make($request)
   {
     $class = new PhpClass();
-    $class->addUseStatement('Eyewill\\TucleCore\\Http\\Requests\\Request');
     $class->addUseStatement('App\\Http\\Presenters\\'.$this->module->studly('Presenter'));
-    $class->setQualifiedName('App\\Http\\Requests\\'.$this->module->studly().'\\'.studly_case($request).'Request extends Request');
+    if ($request == 'update')
+    {
+      $class->setQualifiedName('App\\Http\\Requests\\'.$this->module->studly().'\\'.studly_case($request).'Request extends StoreRequest');
+    }
+    else
+    {
+      $class->addUseStatement('Eyewill\\TucleCore\\Http\\Requests\\Request');
+      $class->setQualifiedName('App\\Http\\Requests\\'.$this->module->studly().'\\'.studly_case($request).'Request extends Request');
+    }
 
     $class->setProperty(
       PhpProperty::create('presenter')
@@ -70,20 +77,28 @@ class RequestsFactory
 
   protected function rules($request)
   {
-    if (!in_array($request, ['store', 'update']))
-    {
-      return 'return [];'.PHP_EOL;
-    }
-
     $php = '';
-    $php.= 'return ['.PHP_EOL;
-    foreach ($this->module->getTableColumns() as $column)
+    if ($request == 'store')
     {
-      if (in_array($column, ['id', 'created_at', 'updated_at']))
-        continue;
-      $php.= sprintf("'%s' => '%s',", $column, 'required').PHP_EOL;
+      $php.= 'return ['.PHP_EOL;
+      foreach ($this->module->getTableColumns() as $column)
+      {
+        if (in_array($column, ['id', 'created_at', 'updated_at']))
+          continue;
+        $php.= sprintf("'%s' => '%s',", $column, 'required').PHP_EOL;
+      }
+      $php.= '];'.PHP_EOL;
+
+      return $php;
     }
-    $php.= '];'.PHP_EOL;
+    elseif ($request == 'update')
+    {
+      $php.= 'return parent::rules();'.PHP_EOL;
+    }
+    else
+    {
+      $php.= 'return [];'.PHP_EOL;
+    }
 
     return $php;
   }

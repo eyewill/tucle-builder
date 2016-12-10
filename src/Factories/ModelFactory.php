@@ -41,9 +41,10 @@ class ModelFactory
   protected function generateCode()
   {
     $class = new PhpClass();
-    $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface');
+    $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface, ExpirableInterface');
     $class->setUseStatements([
       'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
+      'Eyewill\\TucleCore\\Contracts\\Eloquent\\ExpirableInterface',
       'Illuminate\\Database\\Eloquent\\Model',
     ]);
     $class->setTraits([

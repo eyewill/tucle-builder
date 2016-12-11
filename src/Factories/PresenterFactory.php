@@ -53,7 +53,7 @@ class PresenterFactory
     $properties[] = $this->breadCrumbs();
     $properties[] = $this->forms();
     $properties[] = $this->showColumns();
-    $properties[] = $this->entryTableColumns();
+    $properties[] = $this->tableColumns();
     $properties[] = $this->routes();
 
     $class->setProperties(array_reverse($properties));
@@ -174,7 +174,7 @@ class PresenterFactory
     return $code;
   }
 
-  protected function entryTableColumns($limit = 5)
+  protected function tableColumns($limit = 5)
   {
     $columns = [];
     foreach ($this->module->getTableColumns() as $i => $column)
@@ -188,7 +188,7 @@ class PresenterFactory
         "\t],\n";
     }
 
-    return PhpProperty::create('entryTableColumns')
+    return PhpProperty::create('tableColumns')
       ->setExpression("[\n".implode('', $columns)."]");
   }
 

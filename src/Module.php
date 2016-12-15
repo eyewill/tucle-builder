@@ -1,17 +1,49 @@
 <?php namespace Eyewill\TucleBuilder;
 
-use Lang;
-use Schema;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container as ContainerContracts;
+use Illuminate\Database\Connection;
+use Illuminate\Translation\Translator;
+use Illuminate\Support\Str;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class Module
 {
+  /** @var Container */
+  protected $app;
+
   protected $name;
   protected $table;
 
-  public function __construct($name, $table = null)
+  public function __construct(ContainerContracts $container, $name, $table = null)
   {
+    $this->app = $container;
     $this->name = $name;
     $this->table = $table;
+  }
+
+  /**
+   * @return Connection
+   */
+  protected function getConnection()
+  {
+    return $this->app['db'];
+  }
+
+  /**
+   * @return SchemaBuilder
+   */
+  protected function getSchema()
+  {
+    return $this->app['db']->getSchemaBuilder();
+  }
+
+  /**
+   * @return Translator
+   */
+  protected function getLang()
+  {
+    return $this->app['translator'];
   }
 
   public function studly($suffix = null)
@@ -20,7 +52,7 @@ class Module
     if ($suffix)
       $name = $this->name.$suffix;
 
-    return studly_case($name);
+    return Str::studly($name);
   }
 
   public function camel($suffix = null)
@@ -29,7 +61,7 @@ class Module
     if ($suffix)
       $name = $this->name.$suffix;
 
-    return camel_case($name);
+    return Str::camel($name);
   }
 
   public function snake($suffix = null)
@@ -38,14 +70,14 @@ class Module
     if ($suffix)
       $name = $this->name.$suffix;
 
-    return snake_case($name);
+    return Str::snake($name);
   }
 
   public function tableize()
   {
     if (!$this->table)
     {
-      $this->table = str_plural(snake_case($this->name));
+      $this->table = Str::plural(Str::snake($this->name));
     }
 
     return $this->table;
@@ -58,7 +90,7 @@ class Module
 
   public function getFiles()
   {
-    $columns = Schema::getColumnListing($this->tableize());
+    $columns = $this->getSchema()->getColumnListing($this->tableize());
 
     $files = [];
     foreach ($columns as $column)
@@ -74,7 +106,7 @@ class Module
 
   public function getFillable($except = [])
   {
-    $columns = array_diff(Schema::getColumnListing($this->tableize()), $except);
+    $columns = array_diff($this->getSchema()->getColumnListing($this->tableize()), $except);
 
     $files = $this->getFiles();
 
@@ -119,9 +151,10 @@ class Module
     $nullable = [];
     foreach ($columns as $column)
     {
-      if (!Schema::getConnection()->getDoctrineColumn($this->tableize(), $column)->getNotnull())
+      if (!$this->getConnection()->getDoctrineColumn($this->tableize(), $column)->getNotnull())
       {
-        $nullable[] = $column;
+        if ($column != '')
+          $nullable[] = $column;
       }
     }
 
@@ -130,18 +163,17 @@ class Module
 
   public function getTableColumns($except = [])
   {
-    return array_diff(Schema::getColumnListing($this->tableize()), $except);
+    return array_diff($this->getSchema()->getColumnListing($this->tableize()), $except);
   }
 
   public function hasTableColumn($column)
   {
-    return in_array($column, Schema::getColumnListing($this->tableize()));
+    return in_array($column, $this->getSchema()->getColumnListing($this->tableize()));
   }
 
   public function getColumnType($column)
   {
-    $type = Schema::getColumnType($this->tableize(), $column);
-//    $type = 'text';
+    $type = $this->getSchema()->getColumnType($this->tableize(), $column);
 
     return $type;
   }
@@ -167,9 +199,9 @@ class Module
 
   public function getColumnLabel($column)
   {
-    if (Lang::has('validation.attributes.'.$column))
+    if ($this->getLang()->has('validation.attributes.'.$column))
     {
-      return Lang::get('validation.attributes.'.$column);
+      return $this->getLang()->get('validation.attributes.'.$column);
     }
     return $column;
   }

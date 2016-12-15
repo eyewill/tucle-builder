@@ -1,7 +1,7 @@
 <?php namespace Eyewill\TucleBuilder\Console\Commands;
 
 use Exception;
-use Eyewill\TucleBuilder\TucleBuilder;
+use Eyewill\TucleBuilder\Factories\BuilderFactory;
 use Illuminate\Console\Command;
 
 class MakeModule extends Command
@@ -43,9 +43,15 @@ class MakeModule extends Command
     $table = $this->option('table');
 
     try {
-      $factory = new TucleBuilder($module, $force, $only, $table);
-      foreach ($factory->generator() as $message)
+      /** @var BuilderFactory $factory */
+      $factory = $this->getLaravel()->make('Eyewill\TucleBuilder\Factories\BuilderFactory');
+      $builder = $factory->make($module, $force, $only, $table);
+
+      foreach ($builder->generator() as $message)
+      {
         $this->info($message);
+      }
+
     } catch (Exception $e) {
 
       $this->error($e->getFile().':'.$e->getLine().' '.$e->getMessage());

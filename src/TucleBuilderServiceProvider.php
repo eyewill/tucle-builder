@@ -1,7 +1,6 @@
 <?php namespace Eyewill\TucleBuilder;
 
 use Illuminate\Support\ServiceProvider;
-use View;
 
 class TucleBuilderServiceProvider extends ServiceProvider
 {
@@ -18,7 +17,7 @@ class TucleBuilderServiceProvider extends ServiceProvider
    */
   public function boot()
   {
-    View::addNamespace('tucle-builder', __DIR__.'/../templates');
+    $this->app['view']->addNamespace('tucle-builder', __DIR__.'/../templates');
   }
 
   /**

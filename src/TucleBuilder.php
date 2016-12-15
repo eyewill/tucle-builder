@@ -1,11 +1,20 @@
 <?php namespace Eyewill\TucleBuilder;
 
 use Exception;
+use Eyewill\TucleBuilder\Factories\ModelFactory;
+use Eyewill\TucleBuilder\Factories\PresenterFactory;
+use Eyewill\TucleBuilder\Factories\RequestsFactory;
+use Eyewill\TucleBuilder\Factories\RoutesFactory;
+use Eyewill\TucleBuilder\Factories\ViewsFactory;
 use Generator;
-use Schema;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container as ContainerContracts;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class TucleBuilder
 {
+  /** @var Container */
+  protected $app;
   /** @var Module */
   protected $module;
   protected $instance;
@@ -14,32 +23,33 @@ class TucleBuilder
 
   protected function routesPath()
   {
-    return app_path().'/Http/routes';
+    return $this->app['path'].'/Http/routes';
   }
 
   protected function modelPath()
   {
-    return app_path();
+    return $this->app['path'];
   }
 
   protected function presenterPath()
   {
-    return app_path().'/Http/Presenters';
+    return $this->app['path'].'/Http/Presenters';
   }
 
   protected function viewsPath()
   {
-    return base_path().'/resources/views';
+    return $this->app['path'].'/resources/views';
   }
 
   protected function requestsPath()
   {
-    return app_path().'/Http/Requests';
+    return $this->app['path'].'/Http/Requests';
   }
 
-  public function __construct($module, $force = false, $only = null, $table = null)
+  public function __construct(ContainerContracts $container, $module, $force = false, $only = null, $table = null)
   {
-    $this->module = new Module($module, $table);
+    $this->app = $container;
+    $this->module = new Module($container, $module, $table);
     $this->force = $force;
     $this->targets = ['routes', 'model', 'presenter', 'views', 'requests'];
     if (!is_null($only))
@@ -49,16 +59,24 @@ class TucleBuilder
         return in_array($value, $only);
       });
     }
-    if (!Schema::hasTable($this->module->tableize()))
+    if (!$this->getSchema()->hasTable($this->module->tableize()))
     {
       throw new Exception($this->module->tableize().'テーブルを作成してください');
     }
   }
 
+  /**
+   * @return SchemaBuilder
+   */
+  protected function getSchema()
+  {
+    return $this->app['db']->getSchemaBuilder();
+  }
+
   protected function getRoutesFactory()
   {
-    $path = $this->routesPath().'/'.$this->module->camel().'.php';
-    $factory = new Factories\RoutesFactory($this->module, $path, $this->force);
+    $path = $this->routesPath().'/'.$this->module->snake().'.php';
+    $factory = new RoutesFactory($this->module, $path, $this->force);
 
     return $factory;
   }
@@ -66,7 +84,7 @@ class TucleBuilder
   protected function getModelFactory()
   {
     $path = $this->modelPath().'/'.$this->module->studly().'.php';
-    $factory = new Factories\ModelFactory($this->module, $path, $this->force);
+    $factory = new ModelFactory($this->app, $this->module, $path, $this->force);
 
     return $factory;
   }
@@ -74,7 +92,7 @@ class TucleBuilder
   protected function getPresenterFactory()
   {
     $path = $this->presenterPath().'/'.$this->module->studly('Presenter').'.php';
-    $factory = new Factories\PresenterFactory($this->module, $path, $this->force);
+    $factory = new PresenterFactory($this->module, $path, $this->force);
 
     return $factory;
   }
@@ -82,7 +100,7 @@ class TucleBuilder
   protected function getViewsFactory()
   {
     $path = $this->viewsPath().'/'.$this->module->snake();
-    $factory = new Factories\ViewsFactory($this->module, $path, $this->force);
+    $factory = new ViewsFactory($this->module, $path, $this->force);
 
     return $factory;
   }
@@ -90,7 +108,7 @@ class TucleBuilder
   protected function getRequestsFactory()
   {
     $path = $this->requestsPath();
-    $factory = new Factories\RequestsFactory($this->module, $path, $this->force);
+    $factory = new RequestsFactory($this->module, $path, $this->force);
 
     return $factory;
   }

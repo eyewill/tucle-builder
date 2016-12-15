@@ -9,18 +9,19 @@ use gossi\codegen\model\PhpMethod;
 use gossi\codegen\model\PhpParameter;
 use gossi\codegen\model\PhpProperty;
 use gossi\codegen\model\PhpTrait;
+use Illuminate\Contracts\Container\Container;
 
 class ModelFactory
 {
+  protected $app;
   /** @var  Module */
   protected $module;
-
   protected $path;
-
   protected $force;
 
-  public function __construct($module, $path, $force)
+  public function __construct(Container $container, $module, $path, $force)
   {
+    $this->app = $container;
     $this->module = $module;
     $this->path = $path;
     $this->force = $force;

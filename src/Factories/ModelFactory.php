@@ -1,7 +1,6 @@
 <?php namespace Eyewill\TucleBuilder\Factories;
 
 use Eyewill\TucleBuilder\Module;
-use File;
 use Exception;
 use gossi\codegen\generator\CodeGenerator;
 use gossi\codegen\model\PhpClass;
@@ -29,12 +28,12 @@ class ModelFactory
 
   public function make()
   {
-    if (!$this->force && File::exists($this->path))
+    if (!$this->force && file_exists($this->path))
       throw new Exception($this->path.' already exists.');
 
-    File::makeDirectory(dirname($this->path), 02755, true, true);
+    $this->app['files']->makeDirectory(dirname($this->path), 02755, true, true);
 
-    File::put($this->path, $this->generateCode());
+    $this->app['files']->put($this->path, $this->generateCode());
 
     return $this->path;
   }
@@ -77,14 +76,22 @@ class ModelFactory
   {
     return PhpProperty::create('fillable')
       ->setVisibility('protected')
-      ->setExpression("[\n\t'".implode("',\n\t'", $this->module->getFillable())."'\n]");
+      ->setExpression($this->arrayExpression($this->module->getFillable()));
   }
 
   protected function nullable()
   {
     return PhpProperty::create('nullable')
       ->setVisibility('protected')
-      ->setExpression("[\n\t'".implode("',\n\t'", $this->module->getNullable())."'\n]");
+      ->setExpression($this->arrayExpression($this->module->getNullable()));
+  }
+
+  protected function arrayExpression($array = [])
+  {
+    if (empty($array))
+      return "[]";
+
+    return "[\n\t'".implode("',\n\t'", $array)."'\n]";
   }
 
   public function construct()

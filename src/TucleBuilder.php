@@ -7,8 +7,7 @@ use Eyewill\TucleBuilder\Factories\RequestsFactory;
 use Eyewill\TucleBuilder\Factories\RoutesFactory;
 use Eyewill\TucleBuilder\Factories\ViewsFactory;
 use Generator;
-use Illuminate\Container\Container;
-use Illuminate\Contracts\Container\Container as ContainerContracts;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class TucleBuilder
@@ -38,7 +37,7 @@ class TucleBuilder
 
   protected function viewsPath()
   {
-    return $this->app['path'].'/resources/views';
+    return $this->app->basePath().'/resources/views';
   }
 
   protected function requestsPath()
@@ -46,7 +45,7 @@ class TucleBuilder
     return $this->app['path'].'/Http/Requests';
   }
 
-  public function __construct(ContainerContracts $container, $module, $force = false, $only = null, $table = null)
+  public function __construct(Container $container, $module, $force = false, $only = null, $table = null)
   {
     $this->app = $container;
     $this->module = new Module($container, $module, $table);
@@ -100,7 +99,7 @@ class TucleBuilder
   protected function getViewsFactory()
   {
     $path = $this->viewsPath().'/'.$this->module->snake();
-    $factory = new ViewsFactory($this->module, $path, $this->force);
+    $factory = new ViewsFactory($this->app, $this->module, $path, $this->force);
 
     return $factory;
   }

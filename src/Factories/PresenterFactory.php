@@ -22,6 +22,8 @@ class PresenterFactory
     'show',
     'preview',
     'batch',
+    'delete',
+    'delete_file',
   ];
 
   public function __construct($module, $path, $force)

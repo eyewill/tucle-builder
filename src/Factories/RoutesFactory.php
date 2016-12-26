@@ -187,9 +187,16 @@ __CODE__;
 */
 Route::delete('$module/{{$module}}', function (DeleteRequest \$request, $model \$model) {  
   \$model->delete();
-  return redirect()->back()
+  if (\$request->ajax())
+  {
+    return response()->json([
+      'status' => 'ok',
+      'message' => '削除しました',
+    ]);
+  }
+  return redirect()->route('$module.index')
     ->with('success', '削除しました');
-});
+})->name('$module.delete');
 __CODE__;
   }
 
@@ -213,9 +220,9 @@ Route::delete('$module/{{$module}}/{file}', function (DeleteFileRequest \$reques
       'message' => '削除しました',
     ]);
   }
-  return redirect()->back()
+  return redirect()->route('$module.index')
     ->with('success', '削除しました');
-});
+})->name('$module.delete_file');
 __CODE__;
   }
 

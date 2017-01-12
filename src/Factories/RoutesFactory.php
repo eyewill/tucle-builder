@@ -189,6 +189,7 @@ Route::delete('$module/{{$module}}', function (DeleteRequest \$request, $model \
   \$model->delete();
   if (\$request->ajax())
   {
+  session()->flash('success', '削除しました');
     return response()->json([
       'status' => 'ok',
       'message' => '削除しました',
@@ -215,6 +216,7 @@ Route::delete('$module/{{$module}}/{file}', function (DeleteFileRequest \$reques
   \$model->save(); 
   if (\$request->ajax())
   {
+  session()->flash('success', '削除しました');
     return response()->json([
       'status' => 'ok',
       'message' => '削除しました',
@@ -255,6 +257,7 @@ Route::post('$module/batch', function (BatchRequest \$request) {
   
   $model::batch(\$request->json());
 
+  session()->flash('success', '一括処理は正常に完了しました');
   return response()->json([
     'status' => 'ok',
     'message' => '一括処理は正常に完了しました',

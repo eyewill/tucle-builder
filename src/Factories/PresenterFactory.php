@@ -51,6 +51,7 @@ class PresenterFactory
     $class->addUseStatement('Eyewill\\TucleCore\\Http\\Presenters\\ModelPresenter');
     $class->setQualifiedName('App\\Http\\Presenters\\'.$this->module->studly('Presenter').' extends ModelPresenter');
     $properties = [];
+    $properties[] = $this->viewBase();
     $properties[] = $this->pageTitle();
     $properties[] = $this->breadCrumbs();
     $properties[] = $this->forms();
@@ -63,6 +64,13 @@ class PresenterFactory
     $generator = new CodeGenerator();
 
     return '<?php '.$generator->generate($class);
+  }
+
+  protected function viewBase()
+  {
+    return PhpProperty::create('viewBase')
+      ->setVisibility('protected')
+      ->setValue($this->module->snake().'.');
   }
 
   protected function pageTitle()

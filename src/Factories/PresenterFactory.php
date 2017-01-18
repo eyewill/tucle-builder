@@ -5,6 +5,8 @@ use Eyewill\TucleBuilder\Module;
 use File;
 use gossi\codegen\generator\CodeGenerator;
 use gossi\codegen\model\PhpClass;
+use gossi\codegen\model\PhpMethod;
+use gossi\codegen\model\PhpParameter;
 use gossi\codegen\model\PhpProperty;
 
 class PresenterFactory
@@ -58,8 +60,12 @@ class PresenterFactory
     $properties[] = $this->showColumns();
     $properties[] = $this->tableColumns();
     $properties[] = $this->routes();
+    $class->setProperties($properties);
 
-    $class->setProperties(array_reverse($properties));
+    $methods = [
+      $this->getBreadCrumbs(),
+    ];
+    $class->setMethods($methods);
 
     $generator = new CodeGenerator();
 
@@ -212,5 +218,48 @@ class PresenterFactory
 
     return PhpProperty::create('routes')
       ->setExpression("[\n".implode('', $routes)."]");
+  }
+
+  public function getBreadCrumbs()
+  {
+    $module = $this->module->snake();
+
+    return PhpMethod::create('getBreadCrumbs')
+      ->setType('array')
+      ->setVisibility('protected')
+      ->setParameters([new PhpParameter('name'), new PhpParameter('request')])
+      ->setBody(<<<__CODE__
+\$model = \$request->route('$module');
+
+\$breadCrumbs = [
+  'index' => [
+    [
+      'label' => '一覧',
+    ],
+    ],
+      'create' => [
+    [
+      'label' => '新規作成',
+    ],
+    ],
+    'show' => [
+    [
+      'label' => \$this->getPageTitle(\$model),
+    ],
+    ],
+    'edit' => [
+    [
+      'label' => \$this->getPageTitle(\$model),
+      'url' => \$this->route('show', \$model),
+    ],
+    [
+      'label' => '編集',
+    ]
+  ],
+];
+
+return array_get(\$breadCrumbs, \$name, []);
+__CODE__
+    );
   }
 }

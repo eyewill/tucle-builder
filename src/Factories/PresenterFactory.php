@@ -60,6 +60,7 @@ class PresenterFactory
     $properties[] = $this->showColumns();
     $properties[] = $this->tableColumns();
     $properties[] = $this->routes();
+    $properties[] = $this->filters();
     $class->setProperties($properties);
 
     $methods = [
@@ -84,6 +85,13 @@ class PresenterFactory
     return PhpProperty::create('pageTitle')
       ->setVisibility('protected')
       ->setValue($this->module->studly());
+  }
+
+  protected function filters()
+  {
+    return PhpProperty::create('filters')
+      ->setVisibility('protected')
+      ->setExpression('[]');
   }
 
   public function breadCrumbs()

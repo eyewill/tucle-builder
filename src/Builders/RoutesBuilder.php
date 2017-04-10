@@ -299,8 +299,11 @@ __CODE__;
 Route::post('$module/batch/$action', function (BatchRequest \$request) {
   
   \$force = true;
-  \$total = count(\$request->json());
-  \$completes = $model::batch('$action', \$request->json(), \$force);
+  \$entries = ${model}::query()
+    ->whereIn('id', \$request->json()->all())
+    ->get();
+  \$total = count(\$entries);
+  \$completes = $model::batch('$action', \$entries, \$force);
   if (\$force || \$completes == \$total)
   {
     \$message = sprintf('$success', \$total, \$completes);  

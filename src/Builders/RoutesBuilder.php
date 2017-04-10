@@ -262,78 +262,63 @@ __CODE__;
 
   protected function batch_delete()
   {
-    $module = $this->module;
-    $model = $this->module->studly();
-    return <<< __CODE__
-/**
- * Batch delete
- * route POST $module/batch/delete
-*/
-Route::post('$module/batch/delete', function (BatchRequest \$request) {  
-  
-  \$complete = $model::batch('delete', \$request->json());
-  \$message = sprintf('%d件中%d件のレコードを削除しました', count(\$request->json()), \$complete);
-
-  session()->flash('success', \$message);
-
-  return response()->json([
-    'status' => 'ok',
-    'message' => \$message,
-  ]);
-
-})->middleware('json')->name('$module.batch.delete');
-__CODE__;
+    return $this->batch(
+      'delete',
+      '%d件中%d件のレコードを削除しました',
+      '%d件目でエラーが発生したため、処理を中止しました'
+    );
   }
 
   protected function batch_publish()
   {
-    $module = $this->module;
-    $model = $this->module->studly();
-    return <<< __CODE__
-/**
- * Batch publish
- * route POST $module/batch/publish
-*/
-Route::post('$module/batch/publish', function (BatchRequest \$request) {  
-  
-  \$complete = $model::batch('publish', \$request->json());
-  \$message = sprintf('%d件中%d件のレコードを公開しました', count(\$request->json()), \$complete);
-
-  session()->flash('success', \$message);
-
-  return response()->json([
-    'status' => 'ok',
-    'message' => \$message,
-  ]);
-
-})->middleware('json')->name('$module.batch.publish');
-__CODE__;
+    return $this->batch(
+      'publish',
+      '%d件中%d件のレコードを公開しました',
+      '%d件目でエラーが発生したため、処理を中止しました'
+    );
   }
 
-
   protected function batch_terminate()
+  {
+    return $this->batch(
+      'terminate',
+      '%d件中%d件のレコードの公開を終了しました',
+      '%d件目でエラーが発生したため、処理を中止しました'
+    );
+  }
+
+  protected function batch($action, $success, $failure)
   {
     $module = $this->module;
     $model = $this->module->studly();
     return <<< __CODE__
 /**
- * Batch terminate
- * route POST $module/batch/terminate
+ * Batch $action
+ * route POST $module/batch/$action
 */
-Route::post('$module/batch/terminate', function (BatchRequest \$request) {  
+Route::post('$module/batch/$action', function (BatchRequest \$request) {
   
-  \$complete = $model::batch('terminate', \$request->json());
-  \$message = sprintf('%d件中%d件のレコードの公開を終了しました', count(\$request->json()), \$complete);
-
-  session()->flash('success', \$message);
+  \$force = true;
+  \$total = count(\$request->json());
+  \$completes = $model::batch('$action', \$request->json(), \$force);
+  if (\$force || \$completes == \$total)
+  {
+    \$message = sprintf('$success', \$total, \$completes);  
+    session()->flash('success', \$message);
+  }
+  else
+  {
+    \$message = sprintf('$failure', \$completes+1);
+    session()->flash('error', \$message);
+  }
 
   return response()->json([
     'status' => 'ok',
     'message' => \$message,
   ]);
 
-})->middleware('json')->name('$module.batch.terminate');
+})->middleware('json')->name('$module.batch.$action');
 __CODE__;
-  }
 
+  }
 }

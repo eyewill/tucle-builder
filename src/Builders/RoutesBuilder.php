@@ -1,31 +1,24 @@
-<?php namespace Eyewill\TucleBuilder\Factories;
+<?php namespace Eyewill\TucleBuilder\Builders;
 
 use Eyewill\TucleBuilder\Module;
 use Exception;
 use File;
+use Illuminate\Container\Container;
 
-class RoutesFactory
+class RoutesBuilder
 {
+  /** @var Container */
+  protected $app;
+
   /** @var  Module */
   protected $module;
   protected $path;
   protected $force;
   protected $uses = [];
-  protected $routes = [
-    'index',
-    'create',
-    'store',
-    'edit',
-    'update',
-    'show',
-    'preview',
-    'delete',
-    'delete_file',
-    'batch',
-  ];
 
-  public function __construct($module, $path, $force)
+  public function __construct(Container $container, $module, $path, $force)
   {
+    $this->app = $container;
     $this->module = $module;
     $this->path = $path;
     $this->force = $force;
@@ -33,10 +26,12 @@ class RoutesFactory
 
   public function make()
   {
-    if (!$this->force && File::exists($this->path))
+    if (!$this->force && file_exists($this->path))
+    {
       throw new Exception($this->path.' already exists.');
+    }
 
-    File::makeDirectory(dirname($this->path), 02755, true, true);
+    $this->app['files']->makeDirectory(dirname($this->path), 02755, true, true);
 
     $this->uses[] = 'App\\'.$this->module->studly();
     $this->uses[] = 'App\\Http\\Presenters\\'.$this->module->studly('Presenter');
@@ -45,17 +40,38 @@ class RoutesFactory
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\DeleteRequest';
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\DeleteFileRequest';
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\BatchRequest';
-    $routes = [];
-    foreach ($this->routes as $route)
+    $routeNames = [
+      'index',
+      'create',
+      'store',
+      'edit',
+      'update',
+      'show',
+      'preview',
+      'delete',
+      'delete_file',
+      'batch.delete',
+    ];
+    if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
     {
-      $routes[] = $this->{$route}();
+      $routeNames = array_merge($routeNames, [
+        'batch.publish',
+        'batch.terminate',
+      ]);
+    }
+    $routes = [];
+    foreach ($routeNames as $route)
+    {
+      $routes[] = $this->{str_replace('.', '_', $route)}();
     }
 
-    file_put_contents($this->path, view('tucle-builder::routes', [
+    $content = $this->app['view']->make('tucle-builder::routes', [
       'uses'   => $this->uses,
       'routes' => $routes,
       'module' => $this->module,
-    ])->render());
+    ])->render();
+
+    file_put_contents($this->path, $content);
 
     return $this->path;
   }
@@ -244,26 +260,79 @@ __CODE__;
   }
 
 
-  protected function batch()
+  protected function batch_delete()
   {
     $module = $this->module;
     $model = $this->module->studly();
     return <<< __CODE__
 /**
- * Batch request
- * route POST $module/batch
+ * Batch delete
+ * route POST $module/batch/delete
 */
-Route::post('$module/batch', function (BatchRequest \$request) {  
+Route::post('$module/batch/delete', function (BatchRequest \$request) {  
   
-  $model::batch(\$request->json());
+  \$complete = $model::batch('delete', \$request->json());
+  \$message = sprintf('%d件中%d件のレコードを削除しました', count(\$request->json()), \$complete);
 
-  session()->flash('success', '一括処理は正常に完了しました');
+  session()->flash('success', \$message);
+
   return response()->json([
     'status' => 'ok',
-    'message' => '一括処理は正常に完了しました',
+    'message' => \$message,
   ]);
 
-})->middleware('json')->name('$module.batch');
+})->middleware('json')->name('$module.batch.delete');
+__CODE__;
+  }
+
+  protected function batch_publish()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    return <<< __CODE__
+/**
+ * Batch publish
+ * route POST $module/batch/publish
+*/
+Route::post('$module/batch/publish', function (BatchRequest \$request) {  
+  
+  \$complete = $model::batch('publish', \$request->json());
+  \$message = sprintf('%d件中%d件のレコードを公開しました', count(\$request->json()), \$complete);
+
+  session()->flash('success', \$message);
+
+  return response()->json([
+    'status' => 'ok',
+    'message' => \$message,
+  ]);
+
+})->middleware('json')->name('$module.batch.publish');
+__CODE__;
+  }
+
+
+  protected function batch_terminate()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    return <<< __CODE__
+/**
+ * Batch terminate
+ * route POST $module/batch/terminate
+*/
+Route::post('$module/batch/terminate', function (BatchRequest \$request) {  
+  
+  \$complete = $model::batch('terminate', \$request->json());
+  \$message = sprintf('%d件中%d件のレコードの公開を終了しました', count(\$request->json()), \$complete);
+
+  session()->flash('success', \$message);
+
+  return response()->json([
+    'status' => 'ok',
+    'message' => \$message,
+  ]);
+
+})->middleware('json')->name('$module.batch.terminate');
 __CODE__;
   }
 

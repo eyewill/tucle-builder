@@ -44,7 +44,7 @@ class MakeModule extends Command
 
     try {
       /** @var BuilderFactory $factory */
-      $factory = $this->getLaravel()->make('Eyewill\TucleBuilder\Factories\BuilderFactory');
+      $factory = $this->getLaravel()->make(\Eyewill\TucleBuilder\Factories\BuilderFactory::class);
       $builder = $factory->make($module, $force, $only, $table);
 
       foreach ($builder->generator() as $message)

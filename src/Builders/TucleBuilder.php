@@ -1,13 +1,14 @@
-<?php namespace Eyewill\TucleBuilder;
+<?php namespace Eyewill\TucleBuilder\Builders;
 
 use Exception;
 use Eyewill\TucleBuilder\Factories\ModelFactory;
-use Eyewill\TucleBuilder\Factories\PresenterFactory;
+use Eyewill\TucleBuilder\Factories\PresenterBuilderFactory;
 use Eyewill\TucleBuilder\Factories\RequestsFactory;
-use Eyewill\TucleBuilder\Factories\RoutesFactory;
+use Eyewill\TucleBuilder\Factories\RoutesBuilderFactory;
 use Eyewill\TucleBuilder\Factories\ViewsFactory;
+use Eyewill\TucleBuilder\Module;
 use Generator;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Container\Container;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class TucleBuilder
@@ -74,10 +75,10 @@ class TucleBuilder
 
   protected function getRoutesFactory()
   {
+    $factory = $this->app->make(RoutesBuilderFactory::class);
     $path = $this->routesPath().'/'.$this->module->snake().'.php';
-    $factory = new RoutesFactory($this->module, $path, $this->force);
 
-    return $factory;
+    return $factory->make($this->module, $path, $this->force);
   }
 
   protected function getModelFactory()
@@ -90,10 +91,10 @@ class TucleBuilder
 
   protected function getPresenterFactory()
   {
+    $factory = $this->app->make(PresenterBuilderFactory::class);
     $path = $this->presenterPath().'/'.$this->module->studly('Presenter').'.php';
-    $factory = new PresenterFactory($this->module, $path, $this->force);
 
-    return $factory;
+    return $factory->make($this->module, $path, $this->force);
   }
 
   protected function getViewsFactory()

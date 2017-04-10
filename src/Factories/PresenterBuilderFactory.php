@@ -1,26 +1,24 @@
 <?php namespace Eyewill\TucleBuilder\Factories;
 
-use Eyewill\TucleBuilder\Builders\TucleBuilder;
+use Eyewill\TucleBuilder\Builders\PresenterBuilder;
 use Illuminate\Container\Container;
 
-class BuilderFactory
+class PresenterBuilderFactory
 {
   protected $container;
-  protected $composer;
-
+  
   public function __construct(Container $container)
   {
     $this->container = $container;
   }
-
-  public function make($module, $force = false, $only = null, $table = null)
+  
+  public function make($module, $path, $force)
   {
-    return new TucleBuilder(
+    return new PresenterBuilder(
       $this->container,
       $module,
-      $force,
-      $only,
-      $table
+      $path,
+      $force
     );
   }
 }

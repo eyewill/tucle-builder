@@ -1,4 +1,4 @@
-<?php namespace Eyewill\TucleBuilder\Factories;
+<?php namespace Eyewill\TucleBuilder\Builders;
 
 use Exception;
 use Eyewill\TucleBuilder\Module;
@@ -8,28 +8,21 @@ use gossi\codegen\model\PhpClass;
 use gossi\codegen\model\PhpMethod;
 use gossi\codegen\model\PhpParameter;
 use gossi\codegen\model\PhpProperty;
+use Illuminate\Container\Container;
 
-class PresenterFactory
+class PresenterBuilder
 {
+  /** @var Container */
+  protected $app;
+
   /** @var  Module */
   protected $module;
   protected $path;
   protected $force;
-  protected $routes = [
-    'index',
-    'create',
-    'store',
-    'edit',
-    'update',
-    'show',
-    'preview',
-    'batch',
-    'delete',
-    'delete_file',
-  ];
 
-  public function __construct($module, $path, $force)
+  public function __construct(Container $container, $module, $path, $force)
   {
+    $this->app    = $container;
     $this->module = $module;
     $this->path   = $path;
     $this->force  = $force;
@@ -37,12 +30,11 @@ class PresenterFactory
 
   public function make()
   {
-    if (!$this->force && File::exists($this->path))
+    if (!$this->force && file_exists($this->path))
       throw new Exception('presenter already exists');
 
-    File::makeDirectory(dirname($this->path), 02775, true, true);
-
-    File::put($this->path, $this->generateCode());
+    $this->app['files']->makeDirectory(dirname($this->path), 02775, true, true);
+    $this->app['files']->put($this->path, $this->generateCode());
 
     return $this->path;
   }
@@ -218,8 +210,28 @@ class PresenterFactory
 
   protected function routes()
   {
-    $routes = [];
-    foreach ($this->routes as $route)
+    $routeNames = [
+      'index',
+      'create',
+      'store',
+      'edit',
+      'update',
+      'show',
+      'preview',
+      'delete',
+      'delete_file',
+      'batch.delete'
+    ];
+
+    if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
+    {
+      $routeNames = array_merge($routeNames, [
+        'batch.publish',
+        'batch.terminate'
+      ]);
+    }
+
+    foreach ($routeNames as $route)
     {
       $routes[] = sprintf("\t'%s' => '%s.%s',\n", $route, $this->module, $route);
     }

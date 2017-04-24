@@ -18,7 +18,6 @@ class ViewsFactory
 
   protected $views = [
     'index',
-    'show',
     'create',
     'edit',
   ];

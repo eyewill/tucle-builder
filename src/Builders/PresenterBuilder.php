@@ -49,7 +49,6 @@ class PresenterBuilder
     $properties[] = $this->pageTitle();
     $properties[] = $this->breadCrumbs();
     $properties[] = $this->forms();
-    $properties[] = $this->showColumns();
     $properties[] = $this->tableColumns();
     $properties[] = $this->routes();
     $properties[] = $this->filters();
@@ -97,38 +96,6 @@ class PresenterBuilder
     return PhpProperty::create('breadCrumbs')
       ->setVisibility('protected')
       ->setExpression("[\n".implode('', $breadCrumbs)."]");
-  }
-
-  public function showColumns()
-  {
-    $columns = $this->module->getTableColumns();
-
-    $entries = [];
-    foreach ($columns as $column)
-    {
-      if (preg_match('/^(.+)_file_name$/', $column, $m))
-      {
-        $entries[] = $this->makeParamsString([
-          'type' => 'image',
-          'name' => $m[1],
-          'label' => $m[1],
-        ]);
-      }
-      elseif (preg_match('/^.+_(file_size|content_type|updated_at)$/', $column))
-      {
-        continue;
-      }
-      else
-      {
-        $entries[] = $this->makeParamsString([
-          'name' => $column,
-          'label' => $this->module->getColumnLabel($column),
-        ]);
-      }
-    }
-
-    return PhpProperty::create('showColumns')
-      ->setExpression("[\n".implode('', $entries)."]");
   }
 
   protected function forms()
@@ -262,19 +229,10 @@ class PresenterBuilder
       'label' => '新規作成',
     ],
     ],
-    'show' => [
-    [
-      'label' => \$this->getPageTitle(\$model),
-    ],
-    ],
     'edit' => [
     [
       'label' => \$this->getPageTitle(\$model),
-      'url' => \$this->route('show', \$model),
     ],
-    [
-      'label' => '編集',
-    ]
   ],
 ];
 

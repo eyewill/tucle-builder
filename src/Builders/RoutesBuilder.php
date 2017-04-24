@@ -127,7 +127,7 @@ __CODE__;
 Route::post('$module', function (StoreRequest \$request) {  
   \$model = $model::create(\$request->all());
   return redirect()
-    ->route('$module.show', \$model)
+    ->route('$module.edit', \$model)
     ->with('success', '作成しました');
 })->name('$module.store');
 __CODE__;
@@ -166,29 +166,9 @@ Route::put('$module/{{$module}}', function (UpdateRequest \$request, $model \$mo
   \$model->fill(\$request->all());
   \$model->save();
   return redirect()
-    ->route('$module.show', \$model)
+    ->route('$module.edit', \$model)
     ->with('success', '更新しました');
 })->name('$module.update');
-__CODE__;
-  }
-
-  protected function show()
-  {
-    $module = $this->module;
-    $model = $this->module->studly();
-    $presenter = $this->module->studly('Presenter');
-    return <<< __CODE__
-/**
- * Show
- * route GET $module/{{$module}}
- * name $module.show
-*/
-Route::get('$module/{{$module}}', function ($presenter \$presenter, $model \$model) {  
-  return view()->make('$module.show', [
-    'model' => \$model,
-    'presenter' => \$presenter,
-  ]);
-})->name('$module.show');
 __CODE__;
   }
 
@@ -244,6 +224,21 @@ Route::delete('$module/{{$module}}/{file}', function (DeleteFileRequest \$reques
 __CODE__;
   }
 
+  protected function show()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    return <<< __CODE__
+/**
+ * Preview
+ * route Get $module/{{$module}}
+*/
+Route::get('$module/{{$module}}', function ($model \$model) {  
+  return response()->make('show...');
+})->name('$module.show');
+__CODE__;
+  }
+
   protected function preview()
   {
     $module = $this->module;
@@ -258,7 +253,6 @@ Route::get('$module/{{$module}}/preview', function ($model \$model) {
 })->name('$module.preview');
 __CODE__;
   }
-
 
   protected function batch_delete()
   {

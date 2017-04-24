@@ -41,18 +41,35 @@ class ModelFactory
   protected function generateCode()
   {
     $class = new PhpClass();
-    $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface, ExpirableInterface');
-    $class->setUseStatements([
-      'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
-      'Eyewill\\TucleCore\\Contracts\\Eloquent\\ExpirableInterface',
-      'Illuminate\\Database\\Eloquent\\Model',
-    ]);
-    $class->setTraits([
-      PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
-      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
-      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable'),
-      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
-    ]);
+    $isExpirable = $this->module->hasTableColumn('published_at') && $this->module->hasTableColumn('terminated_at');
+    if ($isExpirable)
+    {
+      $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface, ExpirableInterface');
+      $class->setUseStatements([
+        'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
+        'Eyewill\\TucleCore\\Contracts\\Eloquent\\ExpirableInterface',
+        'Illuminate\\Database\\Eloquent\\Model',
+      ]);
+      $class->setTraits([
+        PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
+        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
+        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable'),
+        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
+      ]);
+    }
+    else
+    {
+      $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface');
+      $class->setUseStatements([
+        'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
+        'Illuminate\\Database\\Eloquent\\Model',
+      ]);
+      $class->setTraits([
+        PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
+        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
+        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
+      ]);
+    }
 
     $class->setProperties([
       $this->fillable(),

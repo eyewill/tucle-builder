@@ -45,6 +45,8 @@ class PresenterBuilder
     $class->addUseStatement('Eyewill\\TucleCore\\Http\\Presenters\\ModelPresenter');
     $class->setQualifiedName('App\\Http\\Presenters\\'.$this->module->studly('Presenter').' extends ModelPresenter');
     $properties = [];
+    $properties[] = $this->showCheckbox();
+    $properties[] = $this->showStatus();
     $properties[] = $this->viewBase();
     $properties[] = $this->pageTitle();
     $properties[] = $this->breadCrumbs();
@@ -69,6 +71,20 @@ class PresenterBuilder
     return PhpProperty::create('viewBase')
       ->setVisibility('protected')
       ->setValue($this->module->snake().'.');
+  }
+
+  protected function showCheckbox()
+  {
+    return PhpProperty::create('showCheckbox')
+      ->setVisibility('protected')
+      ->setValue(true);
+  }
+
+  protected function showStatus()
+  {
+    return PhpProperty::create('showStatus')
+      ->setVisibility('protected')
+      ->setValue(true);
   }
 
   protected function pageTitle()

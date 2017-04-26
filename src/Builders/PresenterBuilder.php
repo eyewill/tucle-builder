@@ -96,9 +96,22 @@ class PresenterBuilder
 
   protected function filters()
   {
+    if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
+    {
+      return PhpProperty::create('filters')
+        ->setVisibility('protected')
+        ->setExpression('[
+  [
+    \'name\' => \'status\',
+    \'label\' => \'公開状態\',
+    \'type\' => \'checkbox\',
+    \'index\' => 1,
+  ],
+]');
+    }
     return PhpProperty::create('filters')
-      ->setVisibility('protected')
-      ->setExpression('[]');
+    ->setVisibility('protected')
+    ->setExpression('[]');
   }
 
   public function breadCrumbs()

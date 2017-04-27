@@ -206,28 +206,29 @@ class PresenterBuilder
   protected function routes()
   {
     $routeNames = [
-      'index',
-      'create',
-      'store',
-      'edit',
-      'update',
-      'preview',
-      'delete',
-      'delete_file',
-      'batch.delete'
+      'index' => '%s.index',
+      'create' => '%s.create',
+      'store' => '%s.store',
+      'edit' => '%s.edit',
+      'update' => '%s.update',
+      'preview' => '%s.preview',
+      'delete' => '%s.delete',
+      'delete_file' => '%s.delete_file',
+      'front.index' => 'front.%s.index',
+      'batch.delete' => '%s.batch.delete',
     ];
 
     if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
     {
       $routeNames = array_merge($routeNames, [
-        'batch.publish',
-        'batch.terminate'
+        'batch.publish' => '%s.batch.publish',
+        'batch.terminate' => '%s.batch.terminate',
       ]);
     }
 
-    foreach ($routeNames as $route)
+    foreach ($routeNames as $name => $route)
     {
-      $routes[] = sprintf("\t'%s' => '%s.%s',\n", $route, $this->module, $route);
+      $routes[] = sprintf("\t'%s' => '".$route."',\n", $name, $this->module);
     }
 
     return PhpProperty::create('routes')

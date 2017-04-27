@@ -49,6 +49,7 @@ class RoutesBuilder
       'preview',
       'delete',
       'delete_file',
+      'front.index',
       'batch.delete',
     ];
     if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
@@ -235,6 +236,20 @@ __CODE__;
 Route::get('$module/{{$module}}/preview', function ($model \$model) {  
   return response()->make('preview...');
 })->name('$module.preview');
+__CODE__;
+  }
+
+  protected function front_index()
+  {
+    $module = $this->module;
+    return <<< __CODE__
+/**
+ * Frontend index
+ * route Get frontend/$module
+*/
+Route::get('frontend/$module', function () {  
+  return response()->make('under construction...');
+})->name('front.$module.index');
 __CODE__;
   }
 

@@ -6,7 +6,7 @@
         "gossi/php-code-generator": "0.4.*",
         "illuminate/console": "~5.2.0",
         "illuminate/database": "~5.2.0",
-        "symfony/translation": "~2.8.0",
+        "symfony/translation": "~2.8.0|~3.0.0",
         "illuminate/translation": "~5.2.0"
     },
     "autoload": {

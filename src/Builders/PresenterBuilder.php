@@ -2,7 +2,6 @@
 
 use Exception;
 use Eyewill\TucleBuilder\Module;
-use File;
 use gossi\codegen\generator\CodeGenerator;
 use gossi\codegen\model\PhpClass;
 use gossi\codegen\model\PhpMethod;
@@ -212,7 +211,6 @@ class PresenterBuilder
       'store',
       'edit',
       'update',
-      'show',
       'preview',
       'delete',
       'delete_file',

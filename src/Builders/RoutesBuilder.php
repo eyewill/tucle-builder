@@ -46,7 +46,6 @@ class RoutesBuilder
       'store',
       'edit',
       'update',
-      'show',
       'preview',
       'delete',
       'delete_file',
@@ -221,21 +220,6 @@ Route::delete('$module/{{$module}}/{file}', function (DeleteFileRequest \$reques
   return redirect()->route('$module.index')
     ->with('success', '削除しました');
 })->name('$module.delete_file');
-__CODE__;
-  }
-
-  protected function show()
-  {
-    $module = $this->module;
-    $model = $this->module->studly();
-    return <<< __CODE__
-/**
- * Preview
- * route Get $module/{{$module}}
-*/
-Route::get('$module/{{$module}}', function ($model \$model) {  
-  return response()->make('show...');
-})->name('$module.show');
 __CODE__;
   }
 

@@ -80,7 +80,6 @@ class ModelFactory
       $this->construct(),
       $this->toString(),
       $this->route(),
-      $this->url(),
       $this->getTitleAttribute(),
     ]);
 
@@ -148,17 +147,6 @@ __PHP__
       ->setVisibility('public')
       ->setBody(<<<__PHP__
 return route('$name.index');
-__PHP__
-      );
-  }
-
-  protected function url()
-  {
-    $name = $this->module;
-    return PhpMethod::create('url')
-      ->setVisibility('public')
-      ->setBody(<<<__PHP__
-return config('tucle.front_url').'/$name/'.\$this->id;
 __PHP__
       );
   }

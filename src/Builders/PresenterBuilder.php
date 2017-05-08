@@ -30,7 +30,7 @@ class PresenterBuilder
   public function make()
   {
     if (!$this->force && file_exists($this->path))
-      throw new Exception('presenter already exists');
+      throw new Exception('presenter already exists.');
 
     $this->app['files']->makeDirectory(dirname($this->path), 02775, true, true);
     $this->app['files']->put($this->path, $this->generateCode());

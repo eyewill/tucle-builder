@@ -3,6 +3,7 @@
 use Exception;
 use Eyewill\TucleBuilder\Factories\ModelFactory;
 use Eyewill\TucleBuilder\Factories\PresenterBuilderFactory;
+use Eyewill\TucleBuilder\Factories\RequestsBuilderFactory;
 use Eyewill\TucleBuilder\Factories\RequestsFactory;
 use Eyewill\TucleBuilder\Factories\RoutesBuilderFactory;
 use Eyewill\TucleBuilder\Factories\ViewsFactory;
@@ -107,10 +108,14 @@ class TucleBuilder
 
   protected function getRequestsFactory()
   {
-    $path = $this->requestsPath();
-    $factory = new RequestsFactory($this->module, $path, $this->force);
+    $factory = $this->app->make(RequestsBuilderFactory::class);
+    $path = $this->requestsPath().'/'.$this->module->studly();
 
-    return $factory;
+    return $factory->make($this->module, $path, $this->force);
+//    $path = $this->requestsPath();
+//    $factory = new RequestsFactory($this->module, $path, $this->force);
+//
+//    return $factory;
   }
 
   /**
@@ -151,10 +156,12 @@ class TucleBuilder
     if (in_array('requests', $this->targets))
     {
       $factory = $this->getRequestsFactory();
-      foreach ($factory->generator() as $generator)
-      {
-        yield $generator.' generated.';
-      }
+      $requestsPath = $factory->make();
+      yield $requestsPath.' generated.';
+//      foreach ($factory->generator() as $generator)
+//      {
+//        yield $generator.' generated.';
+//      }
     }
   }
 }

@@ -52,12 +52,11 @@ class MakeModule extends Command
         $this->info($message);
       }
 
+      $this->info($module.' Module created!');
+
     } catch (Exception $e) {
 
       $this->error($e->getFile().':'.$e->getLine().' '.$e->getMessage());
-      exit(-1);
     }
-
-    $this->info($module.' Module created!');
   }
 }

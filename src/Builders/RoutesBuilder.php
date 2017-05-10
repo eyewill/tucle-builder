@@ -88,9 +88,13 @@ class RoutesBuilder
  * name $module.index
 */
 Route::get('$module', function ($presenter \$presenter) {
-  \$entries = $model::all();
+
+  \$total   = \$presenter->getTotal($model::class);
+  \$entries = \$presenter->getEntries($model::class);
+
   return view()->make('$module.index', [
     'presenter' => \$presenter,
+    'total' => \$total,
     'entries' => \$entries,
   ]);
 })->name('$module.index');

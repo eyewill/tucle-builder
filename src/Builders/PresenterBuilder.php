@@ -44,8 +44,6 @@ class PresenterBuilder
     $class->addUseStatement('Eyewill\\TucleCore\\Http\\Presenters\\ModelPresenter');
     $class->setQualifiedName('App\\Http\\Presenters\\'.$this->module->studly('Presenter').' extends ModelPresenter');
     $properties = [];
-    $properties[] = $this->showCheckbox();
-    $properties[] = $this->showStatus();
     $properties[] = $this->viewBase();
     $properties[] = $this->pageTitle();
     $properties[] = $this->breadCrumbs();
@@ -70,20 +68,6 @@ class PresenterBuilder
     return PhpProperty::create('viewBase')
       ->setVisibility('protected')
       ->setValue($this->module->snake().'.');
-  }
-
-  protected function showCheckbox()
-  {
-    return PhpProperty::create('showCheckbox')
-      ->setVisibility('protected')
-      ->setValue(true);
-  }
-
-  protected function showStatus()
-  {
-    return PhpProperty::create('showStatus')
-      ->setVisibility('protected')
-      ->setValue(true);
   }
 
   protected function pageTitle()
@@ -188,19 +172,43 @@ class PresenterBuilder
   protected function tableColumns($limit = 5)
   {
     $columns = [];
+    $columns[] = [
+      "'type' => 'checkbox'",
+    ];
+    if ($this->module->hasTableColumn('published_at') && $this->module->hasTableColumn('terminated_at'))
+    {
+      $columns[] = [
+        "'type' => 'status'",
+      ];
+    }
     foreach ($this->module->getTableColumns() as $i => $column)
     {
       if ($i >= $limit)
         break;
-      $columns[] = "\t[\n".
-        sprintf("\t\t'name' => '%s',\n", $column).
-        sprintf("\t\t'label' => '%s',\n", $this->module->getColumnLabel($column)).
-        (in_array($column, ['id', 'title']) ? sprintf("\t\t'links' => true,\n") : '').
-        "\t],\n";
+      $item = [
+        "'name' => '$column'",
+        "'label' => '".$this->module->getColumnLabel($column)."'",
+      ];
+      if (in_array($column, ['title', 'name', 'label']))
+      {
+        $item[] = "'links' => true";
+      }
+
+      $columns[] = $item;
     }
 
+    $code = '';
+    $code.= "[\n";
+    foreach ($columns as $item)
+    {
+      $code.= "\t[\n";
+      $code.= "\t\t".implode(",\n\t\t", $item)."\n";
+      $code.= "\t],\n";
+    }
+    $code.= "]";
+
     return PhpProperty::create('tableColumns')
-      ->setExpression("[\n".implode('', $columns)."]");
+      ->setExpression($code);
   }
 
   protected function routes()
@@ -212,6 +220,7 @@ class PresenterBuilder
       'edit' => '%s.edit',
       'update' => '%s.update',
       'preview' => '%s.preview',
+      'show' => '%s.show',
       'delete' => '%s.delete',
       'delete_file' => '%s.delete_file',
       'front.index' => 'front.%s.index',

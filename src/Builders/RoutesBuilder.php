@@ -150,6 +150,9 @@ __CODE__;
  * name $module.edit
 */
 Route::get('$module/{{$module}}/edit', function ($presenter \$presenter, $model \$model) {  
+  
+  \$presenter->setParentRouteModel(\$model);
+  
   return view()->make('$module.edit', [
     'model' => \$model,
     'presenter' => \$presenter,

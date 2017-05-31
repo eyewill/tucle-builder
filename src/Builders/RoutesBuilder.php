@@ -238,7 +238,7 @@ __CODE__;
     $model = $this->module->studly();
     return <<< __CODE__
 /**
- * Preview
+ * Show
  * route Get $module/{{$module}}
 */
 Route::get('$module/{{$module}}', function ($model \$model) {  

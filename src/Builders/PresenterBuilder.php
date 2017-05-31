@@ -51,6 +51,7 @@ class PresenterBuilder
     $properties[] = $this->tableColumns();
     $properties[] = $this->routes();
     $properties[] = $this->filters();
+    $properties[] = $this->searchColumns();
     $class->setProperties($properties);
 
     $methods = [
@@ -167,6 +168,13 @@ class PresenterBuilder
     $code.= "\t],\n";
 
     return $code;
+  }
+
+  protected function searchColumns()
+  {
+    return PhpProperty::create('searchColumns')
+      ->setVisibility('protected')
+      ->setExpression('[]');
   }
 
   protected function tableColumns($limit = 5)

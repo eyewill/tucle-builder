@@ -50,8 +50,8 @@ class PresenterBuilder
     $properties[] = $this->forms();
     $properties[] = $this->tableColumns();
     $properties[] = $this->routes();
-    $properties[] = $this->filters();
     $properties[] = $this->searchColumns();
+    $properties[] = $this->dataTables();
     $class->setProperties($properties);
 
     $methods = [
@@ -76,26 +76,6 @@ class PresenterBuilder
     return PhpProperty::create('pageTitle')
       ->setVisibility('protected')
       ->setValue($this->module->studly());
-  }
-
-  protected function filters()
-  {
-    if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
-    {
-      return PhpProperty::create('filters')
-        ->setVisibility('protected')
-        ->setExpression('[
-  [
-    \'name\' => \'status\',
-    \'label\' => \'公開状態\',
-    \'type\' => \'checkbox\',
-    \'index\' => 1,
-  ],
-]');
-    }
-    return PhpProperty::create('filters')
-    ->setVisibility('protected')
-    ->setExpression('[]');
   }
 
   public function breadCrumbs()
@@ -217,6 +197,25 @@ class PresenterBuilder
 
     return PhpProperty::create('tableColumns')
       ->setExpression($code);
+  }
+
+  protected function dataTables()
+  {
+    return PhpProperty::create('dataTables')
+      ->setVisibility('protected')
+      ->setExpression(<<<__EXPRESSION__
+[
+  'options' => [
+    'columnDefs' => [
+      [
+        'className' => 'align-middle text-center',
+        'targets' => [1],
+      ],
+    ],
+  ],
+]
+__EXPRESSION__
+);
   }
 
   protected function routes()

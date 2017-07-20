@@ -55,7 +55,7 @@ class ModelFactory
         PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
         PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable'),
         PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\EventTrait'),
+        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\EventLogTrait'),
       ]);
     }
     else

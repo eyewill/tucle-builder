@@ -6,6 +6,7 @@ use Eyewill\TucleBuilder\Factories\PresenterBuilderFactory;
 use Eyewill\TucleBuilder\Factories\RequestsBuilderFactory;
 use Eyewill\TucleBuilder\Factories\RequestsFactory;
 use Eyewill\TucleBuilder\Factories\RoutesBuilderFactory;
+use Eyewill\TucleBuilder\Factories\SortPresenterBuilderFactory;
 use Eyewill\TucleBuilder\Factories\ViewsFactory;
 use Eyewill\TucleBuilder\Module;
 use Generator;
@@ -98,6 +99,14 @@ class TucleBuilder
     return $factory->make($this->module, $path, $this->force);
   }
 
+  protected function getSortPresenterFactory()
+  {
+    $factory = $this->app->make(SortPresenterBuilderFactory::class);
+    $path = $this->presenterPath().'/'.$this->module->studly('SortPresenter').'.php';
+
+    return $factory->make($this->module, $path, $this->force);
+  }
+
   protected function getViewsFactory()
   {
     $path = $this->viewsPath().'/'.$this->module->snake();
@@ -140,6 +149,9 @@ class TucleBuilder
     if (in_array('presenter', $this->targets))
     {
       $factory = $this->getPresenterFactory();
+      $presenterPath = $factory->make();
+      yield $presenterPath.' generated.';
+      $factory = $this->getSortPresenterFactory();
       $presenterPath = $factory->make();
       yield $presenterPath.' generated.';
     }

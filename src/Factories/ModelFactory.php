@@ -42,35 +42,35 @@ class ModelFactory
   {
     $class = new PhpClass();
     $isExpirable = $this->module->hasTableColumn('published_at') && $this->module->hasTableColumn('terminated_at');
+    $isSortable = $this->module->hasTableColumn('order');
+    $uses = [
+      'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
+      'Illuminate\\Database\\Eloquent\\Model',
+    ];
+    $traits = [
+      PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
+      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
+      PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
+    ];
+    $implements = [
+      'StaplerableInterface',
+    ];
+    if ($isSortable)
+    {
+      $implements[] = 'SortableInterface';
+      $uses[] = 'Eyewill\\TucleCore\\Contracts\\Eloquent\\SortableInterface';
+      $traits[] = PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Sortable');
+    }
     if ($isExpirable)
     {
-      $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface, ExpirableInterface');
-      $class->setUseStatements([
-        'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
-        'Eyewill\\TucleCore\\Contracts\\Eloquent\\ExpirableInterface',
-        'Illuminate\\Database\\Eloquent\\Model',
-      ]);
-      $class->setTraits([
-        PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\EventLogTrait'),
-      ]);
+      $implements[] = 'ExpirableInterface';
+      $uses[] = 'Eyewill\\TucleCore\\Contracts\\Eloquent\\ExpirableInterface';
+      $traits[] = PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Expirable');
+      $traits[] = PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\EventLogTrait');
     }
-    else
-    {
-      $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements StaplerableInterface');
-      $class->setUseStatements([
-        'Codesleeve\\Stapler\\ORM\\StaplerableInterface',
-        'Illuminate\\Database\\Eloquent\\Model',
-      ]);
-      $class->setTraits([
-        PhpTrait::create('Codesleeve\\Stapler\\ORM\\EloquentTrait'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Nullable'),
-        PhpTrait::create('Eyewill\\TucleCore\\Eloquent\\Batch'),
-      ]);
-    }
+    $class->setQualifiedName('App\\'.$this->module->studly().' extends Model implements '.implode(', ', $implements));
+    $class->setUseStatements($uses);
+    $class->setTraits($traits);
 
     $class->setProperties([
       $this->fillable(),

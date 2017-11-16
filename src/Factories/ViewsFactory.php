@@ -20,6 +20,9 @@ class ViewsFactory
     'index',
     'create',
     'edit',
+    'sort/index',
+    'sort/partial/actions/index',
+    'sort/partial/datatables/actions/rows',
   ];
 
   public function __construct(Container $container, $module, $path, $force)
@@ -36,14 +39,17 @@ class ViewsFactory
 
     foreach($this->views as $view)
     {
-      $path = sprintf('%s/%s.blade.php', $this->path, $view);
-      if (!$this->force && $this->app['files']->exists($path))
+      $src = sprintf('%s/%s.blade.stub', __DIR__.'/../../files/views', $view);
+      $dest = sprintf('%s/%s.blade.php', $this->path, $view);
+      $this->app['files']->makeDirectory(dirname($dest), 02755, true, true);
+      if (!$this->force && $this->app['files']->exists($dest))
       {
-        throw new Exception($path.' already exists.');
+        throw new Exception($dest.' already exists.');
       }
 
-      $this->app['files']->put($path, sprintf("@extends('tucle::base.%s')", $view));
-      yield $path;
+      $this->app['files']->copy($src, $dest);
+
+      yield $dest;
     }
   }
 

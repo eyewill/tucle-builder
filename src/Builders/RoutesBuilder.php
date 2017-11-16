@@ -42,6 +42,16 @@ class RoutesBuilder
     $this->uses[] = 'App\\Http\\Requests\\'.$this->module->studly().'\\BatchRequest';
     $routeNames = [
       'index',
+    ];
+    if ($this->module->hasTableColumn('order'))
+    {
+      $this->uses[] = 'App\\Http\\Presenters\\'.$this->module->studly('SortPresenter');
+      $routeNames = array_merge($routeNames, [
+        'sort',
+      ]);
+    }
+
+    $routeNames = array_merge($routeNames, [
       'create',
       'store',
       'edit',
@@ -52,7 +62,8 @@ class RoutesBuilder
       'delete_file',
       'front.index',
       'batch.delete',
-    ];
+    ]);
+
     if ($this->module->hasTableColumn('published_at') and $this->module->hasTableColumn('terminated_at'))
     {
       $routeNames = array_merge($routeNames, [
@@ -60,6 +71,8 @@ class RoutesBuilder
         'batch.terminate',
       ]);
     }
+
+
     $routes = [];
     foreach ($routeNames as $route)
     {
@@ -99,6 +112,41 @@ Route::get('$module', function ($presenter \$presenter) {
     'entries' => \$entries,
   ]);
 })->name('$module.index');
+__CODE__;
+  }
+
+  protected function sort()
+  {
+    $module = $this->module;
+    $model = $this->module->studly();
+    $presenter = $this->module->studly('SortPresenter');
+    return <<< __CODE__
+/**
+ * Sort
+ * route GET $module/sort
+ * name $module.sort
+*/
+Route::get('$module/sort', function ($presenter \$presenter) {
+
+  \$total   = \$presenter->getTotal($model::class);
+  \$entries = \$presenter->getEntries($model::class);
+
+  return view()->make('$module.sort.index', [
+    'presenter' => \$presenter,
+    'total' => \$total,
+    'entries' => \$entries,
+  ]);
+ 
+})->name('$module.sort.index');
+
+Route::post('$module/sort', function () {
+
+  \$model = Question::find(request('source_id'));
+  \$model->sortOrder(request('order'));
+
+  return redirect()->back()
+    ->with('success', '並び順を変更しました');
+});
 __CODE__;
   }
 

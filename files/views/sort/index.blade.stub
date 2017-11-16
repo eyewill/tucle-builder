@@ -1,0 +1,25 @@
+@extends('tucle::base.index')
+
+@section('content')
+  @parent
+  {{ $presenter->getForm()->open(['url' => $presenter->route('index'), 'method' => 'POST', 'id' => 'order']) }}
+  <input type="hidden" name="source_id">
+  <input type="hidden" name="order">
+  {{ $presenter->getForm()->close() }}
+@endsection
+
+@section('script')
+  @parent
+  <script>
+    $(function(){
+      $('select[name=order]').on('change', function (e) {
+        if ($(this).val() === '')
+          return;
+        $(this).prop('disabled', true);
+        $('#order [name=source_id]').val($(this).data('source-id'));
+        $('#order [name=order]').val($(this).val());
+        $('#order').submit();
+      });
+    });
+  </script>
+@endsection

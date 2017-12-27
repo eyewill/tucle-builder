@@ -25,7 +25,7 @@ class TucleBuilder
 
   protected function routesPath()
   {
-    return $this->app['path'].'/Http/routes';
+    return $this->app->basePath().'/routes/admin';
   }
 
   protected function modelPath()

@@ -57,7 +57,7 @@ class TucleBuilder
     if (!is_null($only))
     {
       $only = explode(',', $only);
-      $this->targets = array_where($this->targets, function ($key, $value) use ($only) {
+      $this->targets = array_where($this->targets, function ($value) use ($only) {
         return in_array($value, $only);
       });
     }

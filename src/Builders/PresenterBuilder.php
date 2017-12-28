@@ -54,12 +54,8 @@ class PresenterBuilder
     $properties[] = $this->routes();
     $properties[] = $this->searchColumns();
     $properties[] = $this->dataTables();
-    $properties[] = PhpProperty::create('defaultSortColumn')
-      ->setVisibility('protected')
-      ->setExpression("['order', 'published_at', 'created_at']");
-    $properties[] = PhpProperty::create('defaultSortOrder')
-      ->setVisibility('protected')
-      ->setExpression("['asc', 'desc', 'desc']");
+    $properties[] = $this->defaultSortColumn();
+    $properties[] = $this->defaultSortOrder();
 
     $class->setProperties($properties);
 
@@ -71,6 +67,46 @@ class PresenterBuilder
     $generator = new CodeGenerator();
 
     return '<?php '.$generator->generate($class);
+  }
+
+  protected function defaultSortColumn()
+  {
+    $property = PhpProperty::create('defaultSortColumn')
+      ->setVisibility('protected');
+    $columns = [];
+    if ($this->module->hasTableColumn('order'))
+    {
+      $columns[] = 'order';
+    }
+    if ($this->module->hasTableColumn('published_at'))
+    {
+      $columns[] = 'published_at';
+    }
+    $columns[] = 'created_at';
+    $property->setExpression("['".implode("', '", $columns)."']");
+
+    return $property;
+  }
+
+  protected function defaultSortOrder()
+  {
+    $property = PhpProperty::create('defaultSortOrder')
+      ->setVisibility('protected');
+
+    $orders = [];
+    if ($this->module->hasTableColumn('order'))
+    {
+      $orders[] = 'asc';
+    }
+    if ($this->module->hasTableColumn('published_at'))
+    {
+      $orders[] = 'desc';
+    }
+    $orders[] = 'desc';
+
+    $property->setExpression("['".implode("', '", $orders)."']");
+
+    return $property;
   }
 
   protected function viewBase()

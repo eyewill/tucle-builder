@@ -305,6 +305,7 @@ __CODE__;
  * route Get $module/{{$module}}/preview
 */
 Route::get('$module/{{$module}}/preview', function ($model \$model) {  
+  \$model->published_at = \\Carbon\\Carbon::now();
   return response()->make('preview...');
 })->name('$module.preview');
 __CODE__;
